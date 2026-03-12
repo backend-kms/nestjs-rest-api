@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:15
+    restart: always
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+# docker-compose up # up은 실행 down은 종료
+# postgresql: add connection -> localhost -> postgres -> postgres -> 5432 -> standard connection -> postgres -> nestjs_local_database
