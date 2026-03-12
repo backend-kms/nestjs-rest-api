@@ -37,67 +37,79 @@ export class PostsService {
         private readonly postRepository: Repository<PostsModel>,
     ) {}
 
-    getAllPosts() {
-        return posts;
+    async getAllPosts() {
+        return this.postRepository.find();
     }
 
-    getPostById(id: number) {
-        const post = posts.find((post) => post.id === +id);
+    async getPostById(id: number) {
+        const post = await this.postRepository.findOne({
+            where: {
+                id,
+            }
+        });
+        // await를 하지 않으면 post는 Promise 객체가 된다. 
+        // 따라서 post가 존재하는지 확인하기 위해서는 await를 사용하여 실제 값을 가져와야 한다.
         if (!post) {
             throw new NotFoundException();
         }
-    
         return post;
     }
 
-    createPost(author: string, title: string, content: string) {
-        const newPost: PostModel = {
-        id: posts[posts.length - 1].id + 1,
-        author,
-        title,
-        content,
-        likeCount: 0,
-        commentCount: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        };
+    async createPost(author: string, title: string, content: string) {
+        // 1. create) 새로운 게시글을 생성하는 메서드
+        // 2. save) 생성된 게시글을 데이터베이스에 저장하는 메서드
 
-        posts = [
-        ...posts,
-        newPost
-        ];
-        
+        const post = this.postRepository.create({
+            author,
+            title,
+            content,
+            likeCount: 0,
+            commentCount: 0,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        });
+
+        const newPost = await this.postRepository.save(post);
         return newPost;
     }
 
-    updatePost(id: number, author?: string, title?: string, content?: string) {
-        const post = posts.find((post) => post.id === +id);
+    async updatePost(postId: number, author?: string, title?: string, content?: string) {
+        const post = await this.postRepository.findOne({
+            where: {
+                id: postId,
+            }
+        });
         if (!post) {
-        throw new NotFoundException();
+            throw new NotFoundException();
         }
 
         if (author) {
-        post.author = author;
+            post.author = author;
         }
         if (title) {
-        post.title = title;
+            post.title = title;
         }
         if (content) {
-        post.content = content;
+            post.content = content;
         }
         post.updatedAt = new Date();
 
-        posts = posts.map(prevPost => prevPost.id === +id ? post : prevPost);
-
-        return post;
+        const updatedPost = await this.postRepository.save(post);
+        return updatedPost;
+        
     }
 
-    deletePost(id: number) {
-        const post = posts.find((post) => post.id === +id);
+    async deletePost(postId: number) {
+        const post = await this.postRepository.findOne({
+            where: {
+                id: postId,
+            }
+        });
         if (!post) {
-        throw new NotFoundException();
+            throw new NotFoundException();
         }
-        posts = posts.filter((post) => post.id !== +id);
-        return id;
+        
+        await this.postRepository.delete(postId);
+        return;
     }
 }
