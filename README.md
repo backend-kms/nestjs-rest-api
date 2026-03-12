@@ -101,3 +101,6 @@ Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 
 - nest new nestjs-server
 - npm run start:dev
+
+## package install
+- npm add @nestjs/typeorm typeorm pg
